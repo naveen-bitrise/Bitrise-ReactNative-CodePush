@@ -11,6 +11,7 @@ import com.facebook.react.defaults.DefaultReactHost.getDefaultReactHost
 import com.facebook.react.defaults.DefaultReactNativeHost
 import com.facebook.react.soloader.OpenSourceMergedSoMapping
 import com.facebook.soloader.SoLoader
+import com.microsoft.codepush.react.CodePush
 
 class MainApplication : Application(), ReactApplication {
 
@@ -21,6 +22,13 @@ class MainApplication : Application(), ReactApplication {
               // Packages that cannot be autolinked yet can be added manually here, for example:
               // add(MyReactNativePackage())
             }
+
+        // 2. Override the getJSBundleFile method in order to let
+        // the CodePush runtime determine where to get the JS
+        // bundle location from on each app start
+        override fun getJSBundleFile(): String {
+          return CodePush.getJSBundleFile(BuildConfig.CODEPUSH_KEY) 
+        }
 
         override fun getJSMainModuleName(): String = "index"
 

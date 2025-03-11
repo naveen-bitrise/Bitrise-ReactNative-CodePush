@@ -1,131 +1,303 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
-
-import React from 'react';
-import type {PropsWithChildren} from 'react';
+import React, { useState, useEffect } from 'react';
 import {
-  ScrollView,
-  StatusBar,
+  SafeAreaView,
   StyleSheet,
-  Text,
-  useColorScheme,
   View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  FlatList,
+  StatusBar,
+  Alert,
 } from 'react-native';
+import codePush from '@code-push-next/react-native-code-push';
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
-
-type SectionProps = PropsWithChildren<{
-  title: string;
-}>;
-
-function Section({children, title}: SectionProps): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-  return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
-    </View>
-  );
+// Define Todo item type
+interface Todo {
+  id: string;
+  text: string;
+  completed: boolean;
 }
 
-function App(): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
+const App = () => {
+  const [todos, setTodos] = useState<Todo[]>([]);
+  const [todoText, setTodoText] = useState('');
 
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
+  // Log current package information on app start
+  useEffect(() => {
+    codePush.getUpdateMetadata().then((metadata) => {
+      if (metadata) {
+        console.log('[CodePush] Running binary version: ' + metadata.appVersion);
+        console.log('[CodePush] Running with CodePush update: ' + metadata.label);
+        console.log('[CodePush] Package hash: ' + metadata.packageHash);
+        console.log('[CodePush] Package description: ' + metadata.description);
+      } else {
+        console.log('[CodePush] Running binary version with no CodePush updates installed');
+      }
+    });
+  }, []);
+
+  // Add new todo item
+  const addTodo = () => {
+    if (todoText.trim() === '') {
+      Alert.alert('Error', 'Please enter a task.');
+      return;
+    }
+
+    const newTodo: Todo = {
+      id: Date.now().toString(),
+      text: todoText,
+      completed: false,
+    };
+
+    setTodos([...todos, newTodo]);
+    setTodoText('');
   };
 
-  /*
-   * To keep the template simple and small we're adding padding to prevent view
-   * from rendering under the System UI.
-   * For bigger apps the reccomendation is to use `react-native-safe-area-context`:
-   * https://github.com/AppAndFlow/react-native-safe-area-context
-   *
-   * You can read more about it here:
-   * https://github.com/react-native-community/discussions-and-proposals/discussions/827
-   */
-  const safePadding = '5%';
+  // Toggle todo completion status
+  const toggleTodo = (id: string) => {
+    setTodos(
+      todos.map((todo) =>
+        todo.id === id ? { ...todo, completed: !todo.completed } : todo
+      )
+    );
+  };
 
-  return (
-    <View style={backgroundStyle}>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
+  // Delete a todo
+  const deleteTodo = (id: string) => {
+    setTodos(todos.filter((todo) => todo.id !== id));
+  };
+
+  // Render a single todo item
+  const renderTodoItem = ({ item }: { item: Todo }) => (
+    <View style={styles.todoItem}>
+      <TouchableOpacity
+        style={[styles.checkbox, item.completed && styles.checkboxChecked]}
+        onPress={() => toggleTodo(item.id)}
       />
-      <ScrollView
-        style={backgroundStyle}>
-        <View style={{paddingRight: safePadding}}>
-          <Header/>
-        </View>
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-            paddingHorizontal: safePadding,
-            paddingBottom: safePadding,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.tsx</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
-        </View>
-      </ScrollView>
+      <Text
+        style={[
+          styles.todoText,
+          item.completed && styles.todoTextCompleted,
+        ]}
+      >
+        {item.text}
+      </Text>
+      <TouchableOpacity onPress={() => deleteTodo(item.id)}>
+        <Text style={styles.deleteButton}>Delete</Text>
+      </TouchableOpacity>
     </View>
   );
-}
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <StatusBar barStyle="dark-content" />
+      <View style={styles.header}>
+        <Text style={styles.title}>Todo List</Text>
+        <Text style={styles.subtitle}>With CodePush Integration</Text>
+      </View>
+
+      <View style={styles.inputContainer}>
+        <TextInput
+          style={styles.input}
+          placeholder="Add a new task..."
+          value={todoText}
+          onChangeText={setTodoText}
+        />
+        <TouchableOpacity style={styles.addButton} onPress={addTodo}>
+          <Text style={styles.addButtonText}>Add</Text>
+        </TouchableOpacity>
+      </View>
+
+      <FlatList
+        data={todos}
+        renderItem={renderTodoItem}
+        keyExtractor={(item) => item.id}
+        style={styles.list}
+        ListEmptyComponent={
+          <Text style={styles.emptyList}>
+            No tasks yet. Add a new task to get started!
+          </Text>
+        }
+      />
+    </SafeAreaView>
+  );
+};
 
 const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
+  container: {
+    flex: 1,
+    backgroundColor: '#f5f5f5',
   },
-  sectionTitle: {
+  updateButton: {
+    position: 'absolute',
+    bottom: 20,
+    right: 20,
+    backgroundColor: '#4a69bd',
+    paddingHorizontal: 15,
+    paddingVertical: 10,
+    borderRadius: 5,
+    elevation: 3,
+    shadowOffset: { width: 1, height: 1 },
+    shadowColor: '#333',
+    shadowOpacity: 0.3,
+    shadowRadius: 2,
+  },
+  updateButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
+  },
+  header: {
+    padding: 20,
+    backgroundColor: '#4a69bd',
+    alignItems: 'center',
+  },
+  title: {
     fontSize: 24,
-    fontWeight: '600',
+    fontWeight: 'bold',
+    color: 'white',
   },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
+  subtitle: {
+    fontSize: 16,
+    color: 'rgba(255, 255, 255, 0.8)',
+    marginTop: 5,
   },
-  highlight: {
-    fontWeight: '700',
+  inputContainer: {
+    flexDirection: 'row',
+    padding: 20,
+  },
+  input: {
+    flex: 1,
+    height: 50,
+    backgroundColor: 'white',
+    borderRadius: 5,
+    paddingHorizontal: 15,
+    fontSize: 16,
+  },
+  addButton: {
+    marginLeft: 10,
+    backgroundColor: '#4a69bd',
+    height: 50,
+    paddingHorizontal: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 5,
+  },
+  addButtonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  list: {
+    flex: 1,
+    padding: 20,
+  },
+  todoItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'white',
+    borderRadius: 5,
+    padding: 15,
+    marginBottom: 10,
+  },
+  checkbox: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: '#4a69bd',
+    marginRight: 10,
+  },
+  checkboxChecked: {
+    backgroundColor: '#4a69bd',
+  },
+  todoText: {
+    flex: 1,
+    fontSize: 16,
+  },
+  todoTextCompleted: {
+    textDecorationLine: 'line-through',
+    color: 'gray',
+  },
+  deleteButton: {
+    color: '#ff6b6b',
+    fontWeight: 'bold',
+  },
+  emptyList: {
+    textAlign: 'center',
+    color: 'gray',
+    marginTop: 50,
   },
 });
 
-export default App;
+// CodePush update event logging
+const codePushStatusDidChange = (status) => {
+  switch(status) {
+    case codePush.SyncStatus.CHECKING_FOR_UPDATE:
+      console.log('[CodePush] Checking for updates...');
+      break;
+    case codePush.SyncStatus.AWAITING_USER_ACTION:
+      console.log('[CodePush] Awaiting user action...');
+      break;
+    case codePush.SyncStatus.DOWNLOADING_PACKAGE:
+      console.log('[CodePush] Downloading update package...');
+      break;
+    case codePush.SyncStatus.INSTALLING_UPDATE:
+      console.log('[CodePush] Installing update...');
+      break;
+    case codePush.SyncStatus.UP_TO_DATE:
+      console.log('[CodePush] App is up to date!');
+      break;
+    case codePush.SyncStatus.UPDATE_IGNORED:
+      console.log('[CodePush] Update was ignored by the user');
+      break;
+    case codePush.SyncStatus.UPDATE_INSTALLED:
+      console.log('[CodePush] Update installed and will be applied on restart');
+      break;
+    case codePush.SyncStatus.UNKNOWN_ERROR:
+      console.log('[CodePush] An unknown error occurred');
+      break;
+  }
+};
+
+const codePushDownloadDidProgress = (progress) => {
+  // Calculate progress percentage
+  const percentage = Math.round((progress.receivedBytes / progress.totalBytes) * 100);
+  console.log(`[CodePush] Downloaded ${percentage}% (${progress.receivedBytes}/${progress.totalBytes} bytes)`);
+};
+
+// The useEffect hook needs to be inside a functional component
+// We'll move this to the App component
+
+// Manually check for updates (you can call this on a button press)
+const checkForUpdates = () => {
+  console.log('[CodePush] Manually checking for updates...');
+  codePush.sync({
+    updateDialog: true,
+    installMode: codePush.InstallMode.IMMEDIATE,
+    mandatoryInstallMode: codePush.InstallMode.IMMEDIATE,
+  },
+  codePushStatusDidChange,
+  codePushDownloadDidProgress
+  );
+};
+
+// CodePush configuration
+const codePushOptions = {
+  checkFrequency: codePush.CheckFrequency.ON_APP_START,
+  installMode: codePush.InstallMode.IMMEDIATE,
+  mandatoryInstallMode: codePush.InstallMode.IMMEDIATE,
+  updateDialog: {
+    appendReleaseDescription: true,
+    title: "Update Available",
+    descriptionPrefix: "\n\nRelease Notes:\n",
+    mandatoryContinueButtonLabel: "Install Now",
+    mandatoryUpdateMessage: "An update is available that must be installed.",
+    optionalIgnoreButtonLabel: "Later",
+    optionalInstallButtonLabel: "Install Now",
+    optionalUpdateMessage: "An update is available. Would you like to install it?"
+  }
+};
+
+// Wrap and export your app with CodePush
+export default codePush(codePushOptions);

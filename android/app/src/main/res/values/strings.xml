@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">BitriseReactNativeCodePush</string>
+    <string moduleConfig="true" name="CodePushDeploymentKey">$(CODEPUSH_KEY)</string>
 </resources>
