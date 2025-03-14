@@ -93,7 +93,7 @@ const App = () => {
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" />
       <View style={styles.header}>
-        <Text style={styles.title}>Todo List</Text>
+        <Text style={styles.title}>Todo List Updated</Text>
         <Text style={styles.subtitle}>With CodePush Integration</Text>
       </View>
 
@@ -299,5 +299,23 @@ const codePushOptions = {
   }
 };
 
+// Add a button to manually check for updates
+const AppWithCodePush = () => {
+  // Add useEffect hook here if needed for the wrapper component
+  
+  return (
+    <>
+      <App />
+      {/*<TouchableOpacity 
+        style={styles.updateButton} 
+        onPress={checkForUpdates}
+      >
+        <Text style={styles.updateButtonText}>Check for updates</Text>
+      </TouchableOpacity>*/}
+    </>
+  );
+};
+
 // Wrap and export your app with CodePush
-export default codePush(codePushOptions);
+//export default codePush(codePushOptions)(AppWithCodePush);
+export default codePush(App);
