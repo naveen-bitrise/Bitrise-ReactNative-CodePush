@@ -26,7 +26,6 @@ class AppDelegate: RCTAppDelegate {
       RCTBundleURLProvider.sharedSettings().jsBundleURL(forBundleRoot: "index")
     #else
       let codePushURL = CodePush.bundleURL()
-      print(" ***** RELEASE: CodePush.bundleURL() = \(codePushURL as Any)") // Log the CodePush URL
       return codePushURL
     #endif
   }

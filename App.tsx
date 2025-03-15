@@ -230,57 +230,6 @@ const styles = StyleSheet.create({
   },
 });
 
-// CodePush update event logging
-const codePushStatusDidChange = (status) => {
-  switch(status) {
-    case codePush.SyncStatus.CHECKING_FOR_UPDATE:
-      console.log('[CodePush] Checking for updates...');
-      break;
-    case codePush.SyncStatus.AWAITING_USER_ACTION:
-      console.log('[CodePush] Awaiting user action...');
-      break;
-    case codePush.SyncStatus.DOWNLOADING_PACKAGE:
-      console.log('[CodePush] Downloading update package...');
-      break;
-    case codePush.SyncStatus.INSTALLING_UPDATE:
-      console.log('[CodePush] Installing update...');
-      break;
-    case codePush.SyncStatus.UP_TO_DATE:
-      console.log('[CodePush] App is up to date!');
-      break;
-    case codePush.SyncStatus.UPDATE_IGNORED:
-      console.log('[CodePush] Update was ignored by the user');
-      break;
-    case codePush.SyncStatus.UPDATE_INSTALLED:
-      console.log('[CodePush] Update installed and will be applied on restart');
-      break;
-    case codePush.SyncStatus.UNKNOWN_ERROR:
-      console.log('[CodePush] An unknown error occurred');
-      break;
-  }
-};
-
-const codePushDownloadDidProgress = (progress) => {
-  // Calculate progress percentage
-  const percentage = Math.round((progress.receivedBytes / progress.totalBytes) * 100);
-  console.log(`[CodePush] Downloaded ${percentage}% (${progress.receivedBytes}/${progress.totalBytes} bytes)`);
-};
-
-// The useEffect hook needs to be inside a functional component
-// We'll move this to the App component
-
-// Manually check for updates (you can call this on a button press)
-const checkForUpdates = () => {
-  console.log('[CodePush] Manually checking for updates...');
-  codePush.sync({
-    updateDialog: true,
-    installMode: codePush.InstallMode.IMMEDIATE,
-    mandatoryInstallMode: codePush.InstallMode.IMMEDIATE,
-  },
-  codePushStatusDidChange,
-  codePushDownloadDidProgress
-  );
-};
 
 // CodePush configuration
 const codePushOptions = {
@@ -299,24 +248,7 @@ const codePushOptions = {
   }
 };
 
-// Add a button to manually check for updates
-const AppWithCodePush = () => {
-  // Add useEffect hook here if needed for the wrapper component
-  
-  return (
-    <>
-      <App />
-      {/*<TouchableOpacity 
-        style={styles.updateButton} 
-        onPress={checkForUpdates}
-      >
-        <Text style={styles.updateButtonText}>Check for updates</Text>
-      </TouchableOpacity>*/}
-    </>
-  );
-};
 
 // Wrap and export your app with CodePush
-//export default codePush(codePushOptions)(AppWithCodePush);
 export default codePush(codePushOptions)(App);
 //export default codePush(App);
