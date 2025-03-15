@@ -318,4 +318,5 @@ const AppWithCodePush = () => {
 
 // Wrap and export your app with CodePush
 //export default codePush(codePushOptions)(AppWithCodePush);
-export default codePush(App);
+export default codePush(codePushOptions)(App);
+//export default codePush(App);
