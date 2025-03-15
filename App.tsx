@@ -93,7 +93,7 @@ const App = () => {
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" />
       <View style={styles.header}>
-        <Text style={styles.title}>Todo List Updated</Text>
+        <Text style={styles.title}>Todo List Update Test</Text>
         <Text style={styles.subtitle}>With CodePush Integration</Text>
       </View>
 
