@@ -127,7 +127,7 @@ const App = () => {
       <StatusBar barStyle="dark-content" />
       <View style={styles.header}>
         <Text style={styles.title}>Todo List Updated Tests</Text>
-        <Text style={styles.subtitle}>With CodePush Integration ++</Text>
+        <Text style={styles.subtitle}>With CodePush Integration *</Text>
       </View>
 
       <View style={styles.inputContainer}>
