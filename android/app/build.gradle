@@ -82,8 +82,12 @@ android {
         applicationId "com.bitrisereactnativecodepush"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 1
-        versionName "1.0"
+        //versionCode 1
+        //versionName "1.0"
+
+        // Use command line parameters with fallback values
+        versionName project.hasProperty('appVersionName') ? project.appVersionName : "1.0"
+        versionCode project.hasProperty('appVersionCode') ? project.appVersionCode.toInteger() : 1
     }
     signingConfigs {
         debug {
@@ -96,7 +100,7 @@ android {
     buildTypes {
         debug {
             signingConfig signingConfigs.debug
-            buildConfigField "String", "CODEPUSH_KEY", '"KgjqgQ8NOdUXwxtvNdW1zGxLg7G-0L43CTbfgS"'
+            //buildConfigField "String", "CODEPUSH_KEY", '"V9wSRDzeY1D7KdRIYJy_tqVcGYIR64abHFVw7L"'
         }
         release {
             // Caution! In production, you need to generate your own keystore file.
@@ -104,7 +108,15 @@ android {
             signingConfig signingConfigs.debug
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
-            buildConfigField "String", "CODEPUSH_KEY", '"z1TclLEdy5CCd_ZGIPdlpC_jXphzBVDbk961ZA"'
+            //buildConfigField "String", "CODEPUSH_KEY", '"_J3e36q6fg70JTEOE3837y4basgZ58UjgOz-8g"'
+        }
+    }
+    splits {
+        abi {
+            enable true
+            reset()
+            include "x86", "arm64-v8a", "armeabi-v7a"
+            universalApk true
         }
     }
 }

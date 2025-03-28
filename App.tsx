@@ -23,8 +23,31 @@ const App = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [todoText, setTodoText] = useState('');
 
-  // Log current package information on app start
-  useEffect(() => {
+    // Log current package information on app start
+    useEffect(() => {
+
+      // Add custom error handler
+    const originalConsoleError = console.error.bind(console);
+    console.error = function(message, ...args) {
+      console.log("[CodePushDebug] Error intercepted:", message, ...args);
+      return originalConsoleError(message, ...args);
+    };
+    
+    // Monitor network requests
+    const originalFetch = global.fetch;
+    global.fetch = function(input, init) {
+      console.log("[CodePushDebug] Fetch request to:", typeof input === 'string' ? input : 'Request object');
+      return originalFetch(input, init)
+        .then(response => {
+          console.log("[CodePushDebug] Fetch success for:", typeof input === 'string' ? input : 'Request object');
+          return response;
+        })
+        .catch(error => {
+          console.log("[CodePushDebug] Fetch error:", error);
+          throw error;
+        });
+    };
+
     codePush.getUpdateMetadata().then((metadata) => {
       if (metadata) {
         console.log('[CodePush] Running binary version: ' + metadata.appVersion);
@@ -34,7 +57,17 @@ const App = () => {
       } else {
         console.log('[CodePush] Running binary version with no CodePush updates installed');
       }
+
+      // After getting metadata, check for updates
+      console.log('[CodePush] Checking for update.');
+
+      
+
+    }).catch(err => {
+      console.log('[CodePush] Error getting metadata:', err);
     });
+
+    
   }, []);
 
   // Add new todo item
@@ -94,7 +127,7 @@ const App = () => {
       <StatusBar barStyle="dark-content" />
       <View style={styles.header}>
         <Text style={styles.title}>Todo List Updated Tests</Text>
-        <Text style={styles.subtitle}>With CodePush Integration</Text>
+        <Text style={styles.subtitle}>With CodePush Integration +</Text>
       </View>
 
       <View style={styles.inputContainer}>

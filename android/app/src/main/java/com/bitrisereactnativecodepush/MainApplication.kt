@@ -12,6 +12,7 @@ import com.facebook.react.defaults.DefaultReactNativeHost
 import com.facebook.react.soloader.OpenSourceMergedSoMapping
 import com.facebook.soloader.SoLoader
 import com.microsoft.codepush.react.CodePush
+import android.util.Log
 
 class MainApplication : Application(), ReactApplication {
 
@@ -27,7 +28,7 @@ class MainApplication : Application(), ReactApplication {
         // the CodePush runtime determine where to get the JS
         // bundle location from on each app start
         override fun getJSBundleFile(): String {
-          return CodePush.getJSBundleFile(BuildConfig.CODEPUSH_KEY) 
+          return CodePush.getJSBundleFile() 
         }
 
         override fun getJSMainModuleName(): String = "index"
